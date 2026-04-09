@@ -89,13 +89,16 @@ class Sudoku {
                 const boxStartCol = Math.floor(col / 3) * 3
                 for (let r = boxStartRow; r < boxStartRow + 3; r++) {
                     for (let c = boxStartCol; c < boxStartCol + 3; c++) {
-                        if (r !== row && c !== col && this.grid[r][c] === value) {
+                        // 只要不是同一个格子，就应该检查
+                        if ((r !== row || c !== col) && this.grid[r][c] === value) {
                             if (!invalidCells.includes(`${row},${col}`)) {
                                 invalidCells.push(`${row},${col}`)
                             }
                             break
                         }
                     }
+                    // 如果已经找到冲突，跳出外层循环
+                    if (invalidCells.includes(`${row},${col}`)) break
                 }
             }
         }
@@ -128,7 +131,8 @@ class Sudoku {
         const boxStartCol = Math.floor(col / 3) * 3
         for (let r = boxStartRow; r < boxStartRow + 3; r++) {
             for (let c = boxStartCol; c < boxStartCol + 3; c++) {
-                if (r !== row && c !== col && this.grid[r][c] === value) return true
+                // 只要不是同一个格子，就应该检查
+                if ((r !== row || c !== col) && this.grid[r][c] === value) return true
             }
         }
 
