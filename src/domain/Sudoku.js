@@ -61,37 +61,60 @@ class Sudoku {
     validate() {
         const invalidCells = new Set()
 
+        // 检查所有行
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
                 const value = this.grid[row][col]
-                if (value === 0) continue // 空格子不检查
+                if (value === 0) continue
 
-                // 检查行冲突：同行其他格子
-                for (let c = 0; c < 9; c++) {
-                    if (c !== col && this.grid[row][c] === value) {
-                        // 两个格子都标记为冲突
+                // 检查该行右侧是否有相同数字
+                for (let c = col + 1; c < 9; c++) {
+                    if (this.grid[row][c] === value) {
                         invalidCells.add(`${row},${col}`)
                         invalidCells.add(`${row},${c}`)
                     }
                 }
+            }
+        }
 
-                // 检查列冲突：同列其他格子
-                for (let r = 0; r < 9; r++) {
-                    if (r !== row && this.grid[r][col] === value) {
+        // 检查所有列
+        for (let col = 0; col < 9; col++) {
+            for (let row = 0; row < 9; row++) {
+                const value = this.grid[row][col]
+                if (value === 0) continue
+
+                // 检查该列下方是否有相同数字
+                for (let r = row + 1; r < 9; r++) {
+                    if (this.grid[r][col] === value) {
                         invalidCells.add(`${row},${col}`)
                         invalidCells.add(`${r},${col}`)
                     }
                 }
+            }
+        }
 
-                // 检查 3×3 宫冲突：宫内其他格子
-                const boxStartRow = Math.floor(row / 3) * 3
-                const boxStartCol = Math.floor(col / 3) * 3
-                for (let r = boxStartRow; r < boxStartRow + 3; r++) {
-                    for (let c = boxStartCol; c < boxStartCol + 3; c++) {
-                        // 只要不是同一个格子，就应该检查
-                        if ((r !== row || c !== col) && this.grid[r][c] === value) {
-                            invalidCells.add(`${row},${col}`)
-                            invalidCells.add(`${r},${c}`)
+        // 检查所有 3×3 宫
+        for (let boxRow = 0; boxRow < 3; boxRow++) {
+            for (let boxCol = 0; boxCol < 3; boxCol++) {
+                const startRow = boxRow * 3
+                const startCol = boxCol * 3
+                
+                // 收集宫内所有已填数字
+                const cells = []
+                for (let r = startRow; r < startRow + 3; r++) {
+                    for (let c = startCol; c < startCol + 3; c++) {
+                        if (this.grid[r][c] !== 0) {
+                            cells.push({ row: r, col: c, value: this.grid[r][c] })
+                        }
+                    }
+                }
+                
+                // 检查宫内是否有重复
+                for (let i = 0; i < cells.length; i++) {
+                    for (let j = i + 1; j < cells.length; j++) {
+                        if (cells[i].value === cells[j].value) {
+                            invalidCells.add(`${cells[i].row},${cells[i].col}`)
+                            invalidCells.add(`${cells[j].row},${cells[j].col}`)
                         }
                     }
                 }

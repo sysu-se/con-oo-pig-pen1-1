@@ -9,6 +9,11 @@
 
 	function handleKeyButton(num) {
 		if (!$keyboardDisabled) {
+			// 检查是否是题目预设的格子，如果是则不允许修改
+			if (gameStore.isInitialCell($cursor.y, $cursor.x)) {
+				return // 题目预设格子，不允许修改
+			}
+
 			if ($notes) {
 				if (num === 0) {
 					candidates.clear($cursor);
