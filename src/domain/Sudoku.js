@@ -59,51 +59,46 @@ class Sudoku {
      * @returns {Array<string>} 返回冲突格子的坐标数组，格式为 ["row,col", ...]
      */
     validate() {
-        const invalidCells = []
+        const invalidCells = new Set()
 
         for (let row = 0; row < 9; row++) {
             for (let col = 0; col < 9; col++) {
                 const value = this.grid[row][col]
                 if (value === 0) continue // 空格子不检查
 
-                // 检查行冲突
+                // 检查行冲突：同行其他格子
                 for (let c = 0; c < 9; c++) {
                     if (c !== col && this.grid[row][c] === value) {
-                        invalidCells.push(`${row},${col}`)
-                        break
+                        // 两个格子都标记为冲突
+                        invalidCells.add(`${row},${col}`)
+                        invalidCells.add(`${row},${c}`)
                     }
                 }
 
-                // 检查列冲突
+                // 检查列冲突：同列其他格子
                 for (let r = 0; r < 9; r++) {
                     if (r !== row && this.grid[r][col] === value) {
-                        if (!invalidCells.includes(`${row},${col}`)) {
-                            invalidCells.push(`${row},${col}`)
-                        }
-                        break
+                        invalidCells.add(`${row},${col}`)
+                        invalidCells.add(`${r},${col}`)
                     }
                 }
 
-                // 检查 3×3 宫冲突
+                // 检查 3×3 宫冲突：宫内其他格子
                 const boxStartRow = Math.floor(row / 3) * 3
                 const boxStartCol = Math.floor(col / 3) * 3
                 for (let r = boxStartRow; r < boxStartRow + 3; r++) {
                     for (let c = boxStartCol; c < boxStartCol + 3; c++) {
                         // 只要不是同一个格子，就应该检查
                         if ((r !== row || c !== col) && this.grid[r][c] === value) {
-                            if (!invalidCells.includes(`${row},${col}`)) {
-                                invalidCells.push(`${row},${col}`)
-                            }
-                            break
+                            invalidCells.add(`${row},${col}`)
+                            invalidCells.add(`${r},${c}`)
                         }
                     }
-                    // 如果已经找到冲突，跳出外层循环
-                    if (invalidCells.includes(`${row},${col}`)) break
                 }
             }
         }
 
-        return invalidCells
+        return Array.from(invalidCells)
     }
 
     /**
