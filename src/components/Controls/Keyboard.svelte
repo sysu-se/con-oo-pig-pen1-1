@@ -1,8 +1,8 @@
 <script>
-	import { userGrid } from '@sudoku/stores/grid';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { notes } from '@sudoku/stores/notes';
 	import { candidates } from '@sudoku/stores/candidates';
+	import { gameStore } from '@sudoku/stores/gameStore';
 
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
@@ -12,16 +12,27 @@
 			if ($notes) {
 				if (num === 0) {
 					candidates.clear($cursor);
+					// 笔记模式：清空格子
+					gameStore.guess({
+						row: $cursor.y,
+						col: $cursor.x,
+						value: 0
+					});
 				} else {
 					candidates.add($cursor, num);
+					// 笔记模式：不通过领域对象，只更新 candidates
 				}
-				userGrid.set($cursor, 0);
 			} else {
 				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
 					candidates.clear($cursor);
 				}
 
-				userGrid.set($cursor, num);
+				// 使用领域对象的 guess 方法
+				gameStore.guess({
+					row: $cursor.y,
+					col: $cursor.x,
+					value: num
+				});
 			}
 		}
 	}

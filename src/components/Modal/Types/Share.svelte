@@ -2,13 +2,16 @@
 	import { onMount } from 'svelte';
 	import { BASE_URL } from '@sudoku/constants';
 	import { modal } from '@sudoku/stores/modal';
-	import { grid } from '@sudoku/stores/grid';
+	import { gameStore } from '@sudoku/stores/gameStore';
+	import { encodeSudoku } from '@sudoku/sencode';
 	import Clipboard from '../../Utils/Clipboard.svelte';
 
 	export let data = {};
 	export let hideModal;
 
-	const sencode = grid.getSencode($grid);
+	// 使用 gameStore.grid 获取当前数独局面
+	$: currentGrid = $gameStore.grid;
+	$: sencode = encodeSudoku(currentGrid);
 
 	const link = BASE_URL + '#' + sencode;
 	const encodedLink = encodeURIComponent(link);

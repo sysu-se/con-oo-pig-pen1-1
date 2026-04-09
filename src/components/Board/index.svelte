@@ -1,7 +1,7 @@
 <script>
 	import { BOX_SIZE } from '@sudoku/constants';
 	import { gamePaused } from '@sudoku/stores/game';
-	import { grid, userGrid, invalidCells } from '@sudoku/stores/grid';
+	import { gameStore } from '@sudoku/stores/gameStore';
 	import { settings } from '@sudoku/stores/settings';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { candidates } from '@sudoku/stores/candidates';
@@ -27,6 +27,12 @@
 
 		return gridStore[cursorStore.y][cursorStore.x];
 	}
+
+	// 从 gameStore 获取 grid 和 initialGrid
+	// $gameStore 现在是派生的 state 对象，包含 grid、initialGrid、invalidCells 等
+	$: currentGrid = $gameStore.grid;
+	$: initialGrid = $gameStore.initialGrid;
+	$: invalidCells = $gameStore.invalidCells;
 </script>
 
 <div class="board-padding relative z-10">
@@ -37,7 +43,7 @@
 
 		<div class="bg-white shadow-2xl rounded-xl overflow-hidden w-full h-full max-w-xl grid" class:bg-gray-200={$gamePaused}>
 
-			{#each $userGrid as row, y}
+			{#each currentGrid as row, y}
 				{#each row as value, x}
 					<Cell {value}
 					      cellY={y + 1}
@@ -45,10 +51,10 @@
 					      candidates={$candidates[x + ',' + y]}
 					      disabled={$gamePaused}
 					      selected={isSelected($cursor, x, y)}
-					      userNumber={$grid[y][x] === 0}
+					      userNumber={initialGrid[y][x] === 0 && value !== 0}
 					      sameArea={$settings.highlightCells && !isSelected($cursor, x, y) && isSameArea($cursor, x, y)}
-					      sameNumber={$settings.highlightSame && value && !isSelected($cursor, x, y) && getValueAtCursor($userGrid, $cursor) === value}
-					      conflictingNumber={$settings.highlightConflicting && $grid[y][x] === 0 && $invalidCells.includes(x + ',' + y)} />
+					      sameNumber={$settings.highlightSame && value && !isSelected($cursor, x, y) && getValueAtCursor(currentGrid, $cursor) === value}
+					      conflictingNumber={$settings.highlightConflicting && initialGrid[y][x] === 0 && invalidCells.includes(x + ',' + y)} />
 				{/each}
 			{/each}
 
