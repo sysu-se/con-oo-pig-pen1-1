@@ -13,8 +13,40 @@ class Sudoku {
         if (!input) {
             this.grid = Array.from({ length: 9 }, () => Array(9).fill(0))
         } else {
+            // 校验输入格式是否为合法的 9x9 数独网格
+            this._validateInput(input)
             // 深拷贝输入的 grid 数据
             this.grid = JSON.parse(JSON.stringify(input))
+        }
+    }
+
+    /**
+     * 私有方法：校验输入数据是否符合数独网格的不变量
+     * @param {any} input - 待校验的输入数据
+     * @throws {Error} 如果输入不合法则抛出错误
+     */
+    _validateInput(input) {
+        // 检查是否为数组且长度为 9
+        if (!Array.isArray(input) || input.length !== 9) {
+            throw new Error('Sudoku grid must be a 9x9 array')
+        }
+
+        // 检查每一行
+        for (let i = 0; i < 9; i++) {
+            const row = input[i]
+
+            // 检查行是否为数组且长度为 9
+            if (!Array.isArray(row) || row.length !== 9) {
+                throw new Error(`Row ${i} must be an array with 9 cells`)
+            }
+
+            // 检查每个格子是否为 0-9 的整数
+            for (let j = 0; j < 9; j++) {
+                const cell = row[j]
+                if (!Number.isInteger(cell) || cell < 0 || cell > 9) {
+                    throw new Error(`Cell [${i}][${j}] must be an integer between 0 and 9, got: ${cell}`)
+                }
+            }
         }
     }
 
@@ -29,18 +61,23 @@ class Sudoku {
     /**
      * 在指定位置填入一个数字
      * @param {Object} move - 包含 row（行号）、col（列号）、value（数字）的对象
+     * @returns {boolean} 如果成功填入数字返回 true，如果输入非法则返回 false
      */
     guess(move) {
         const { row, col, value } = move
 
         // 校验位置是否合法
-        if (!this.isValidPosition(row, col)) return
+        if (!this.isValidPosition(row, col)) return false
 
         // 校验值的合法性
-        if (typeof value !== 'number' || value < 0 || value > 9) return
+        if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 9) return false
+
+        // 如果新值和当前值一样，视为没有改变
+        if (this.grid[row][col] === value) return false
 
         // 将数字填入 grid 的指定位置
         this.grid[row][col] = value
+        return true
     }
 
     /**

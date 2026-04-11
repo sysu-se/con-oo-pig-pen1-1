@@ -69,16 +69,25 @@ class Game {
     /**
      * 执行填数字操作（带历史记录）
      * @param {Object} move - 包含 row、col、value 的对象
+     * @returns {boolean} 如果成功执行返回 true，如果输入非法或无改变返回 false
      */
     guess(move) {
-        // 第 1 步：在执行操作前，保存当前局面的快照到 history 数组
-        this.history.push(this.sudoku.clone())
+        // 先保存操作前的盘面快照（用于后续 undo 恢复）
+        const snapshotBefore = this.sudoku.clone()
 
-        // 第 2 步：调用内部 sudoku 对象的 guess 方法，执行实际的填数字操作
-        this.sudoku.guess(move)
+        // 调用内部 sudoku 对象的 guess 方法，执行实际的填数字操作
+        // Sudoku.guess 现在会返回布尔值表示是否成功
+        const success = this.sudoku.guess(move)
 
-        // 第 3 步：清空 redoHistory 数组
-        this.redoHistory = []
+        // 只有当操作真正成功时（即盘面状态发生了改变），才保存历史快照
+        if (success) {
+            // 将操作前的快照存入 history，用于 undo 恢复
+            this.history.push(snapshotBefore)
+            // 清空 redoHistory 数组（新操作后不能再 redo）
+            this.redoHistory = []
+        }
+
+        return success
     }
 
     /**

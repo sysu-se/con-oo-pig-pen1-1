@@ -126,15 +126,20 @@ function createGameStore() {
     /**
      * 填数字（用户输入）
      * @param {Object} move - { row: number, col: number, value: number }
+     * @returns {boolean} 如果成功执行返回 true，否则返回 false
      */
     function guess(move) {
-        if (!game) return
+        if (!game) return false
 
         // 调用领域对象的 guess 方法
-        game.guess(move)
+        const success = game.guess(move)
 
-        // 同步状态到 Stores（触发 Svelte 响应式更新）
-        syncToStores()
+        // 只有操作成功时才同步状态到 Stores（触发 Svelte 响应式更新）
+        if (success) {
+            syncToStores()
+        }
+
+        return success
     }
 
     /**
